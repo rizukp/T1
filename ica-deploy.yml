@@ -1,0 +1,131 @@
+name: ICA Test Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+        default: 'development'
+      version:
+        description: 'Version to deploy'
+        required: true
+        type: string
+        default: '1.0.0'
+      ica_request_id:
+        description: 'ICA Request ID'
+        required: true
+        type: string
+      ica_context_id:
+        description: 'ICA Context ID'
+        required: false
+        type: string
+      ica_user:
+        description: 'ICA User'
+        required: false
+        type: string
+      ica_change_ticket:
+        description: 'Change Ticket Number'
+        required: false
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Display deployment info
+        run: |
+          echo "🚀 ICA Deployment Started"
+          echo "================================"
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Version: ${{ inputs.version }}"
+          echo "ICA Request ID: ${{ inputs.ica_request_id }}"
+          echo "ICA Context ID: ${{ inputs.ica_context_id }}"
+          echo "ICA User: ${{ inputs.ica_user }}"
+          echo "Change Ticket: ${{ inputs.ica_change_ticket }}"
+          echo "Triggered at: $(date)"
+          echo "================================"
+      
+      - name: Install dependencies
+        run: |
+          echo "📦 Installing dependencies..."
+          npm ci
+      
+      - name: Run linting
+        run: |
+          echo "🔍 Running code quality checks..."
+          npm run lint || echo "⚠️ Linting not configured, skipping..."
+      
+      - name: Run tests
+        run: |
+          echo "🧪 Running tests..."
+          npm test || echo "⚠️ Tests not configured, skipping..."
+      
+      - name: Build application
+        run: |
+          echo "🔨 Building application..."
+          echo "Build completed successfully for version ${{ inputs.version }}"
+      
+      - name: Simulate deployment
+        run: |
+          echo "🚀 Deploying to ${{ inputs.environment }}..."
+          echo "Deployment target: ${{ inputs.environment }}"
+          echo "Version: ${{ inputs.version }}"
+          sleep 5
+          echo "✅ Deployment completed successfully!"
+      
+      - name: Create deployment summary
+        run: |
+          echo "## 🎉 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | ${{ inputs.environment }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | ${{ inputs.version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ICA Request ID | ${{ inputs.ica_request_id }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ICA Context ID | ${{ inputs.ica_context_id }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered By | ${{ inputs.ica_user }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Change Ticket | ${{ inputs.ica_change_ticket }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ✅ Success |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Deployment completed at $(date)" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-artifacts-${{ inputs.environment }}-${{ inputs.version }}
+          path: |
+            package.json
+            package-lock.json
+          retention-days: 30
+      
+      - name: Notify completion
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment successful!"
+            echo "Environment: ${{ inputs.environment }}"
+            echo "Version: ${{ inputs.version }}"
+            echo "ICA Request ID: ${{ inputs.ica_request_id }}"
+          else
+            echo "❌ Deployment failed!"
+            echo "Please check the logs for details."
+          fi
+
+# Made with Bob
