@@ -33,6 +33,26 @@ on:
         description: 'Change Ticket Number'
         required: false
         type: string
+      ica_agent_id:
+        description: 'ICA Agent ID'
+        required: false
+        type: string
+      triggered_by:
+        description: 'Trigger source'
+        required: false
+        type: string
+      repository:
+        description: 'Repository owner/name'
+        required: false
+        type: string
+      branch:
+        description: 'Git branch'
+        required: false
+        type: string
+      timestamp:
+        description: 'Trigger timestamp'
+        required: false
+        type: string
 
 jobs:
   deploy:
@@ -59,6 +79,11 @@ jobs:
           echo "ICA Context ID: ${{ inputs.ica_context_id }}"
           echo "ICA User: ${{ inputs.ica_user }}"
           echo "Change Ticket: ${{ inputs.ica_change_ticket }}"
+          echo "ICA Agent ID: ${{ inputs.ica_agent_id }}"
+          echo "Trigger Source: ${{ inputs.triggered_by }}"
+          echo "Repository: ${{ inputs.repository }}"
+          echo "Branch: ${{ inputs.branch }}"
+          echo "Event Timestamp: ${{ inputs.timestamp }}"
           echo "Triggered at: $(date)"
           echo "================================"
       
@@ -102,6 +127,11 @@ jobs:
           echo "| ICA Context ID | ${{ inputs.ica_context_id }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Triggered By | ${{ inputs.ica_user }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Change Ticket | ${{ inputs.ica_change_ticket }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ICA Agent ID | ${{ inputs.ica_agent_id }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Trigger Source | ${{ inputs.triggered_by }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Repository | ${{ inputs.repository }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${{ inputs.branch }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Event Timestamp | ${{ inputs.timestamp }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Status | ✅ Success |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Deployment completed at $(date)" >> $GITHUB_STEP_SUMMARY
